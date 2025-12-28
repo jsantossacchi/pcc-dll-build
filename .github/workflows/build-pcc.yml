@@ -38,7 +38,7 @@ jobs:
           --disable-debug \
           --disable-shared
 
-        make -j2
+        make -j1
         cd lib
         make
         cd ..
