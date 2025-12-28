@@ -25,21 +25,24 @@ jobs:
           mingw-w64-i686-gcc
 
     - name: Build PCC
-  shell: msys2 {0}
-  run: |
-    set -e
-    export PATH="/usr/bin:$PATH"
-    git clone --depth 1 https://github.com/pcc/pcc.git
-    cd pcc
-    ./configure --target=i386-win32 --disable-tests --disable-debug --disable-shared
-    make -j1
-    cd lib
-    make
-    cd ..
-
+      run: |
+        set -e
+        # Use MSYS2 git
+        export PATH="/usr/bin:$PATH"
+        git clone --depth 1 https://github.com/pcc/pcc.git
+        cd pcc
+        ./configure \
+          --target=i386-win32 \
+          --disable-tests \
+          --disable-debug \
+          --disable-shared
+        make -j1
+        cd lib
+        make
+        cd ..
+      shell: bash
 
     - name: Create minimal distribution
-      shell: msys2 {0}
       run: |
         set -e
 
@@ -70,13 +73,19 @@ jobs:
         EOF
 
         echo "PCC is BSD licensed." > dist/LICENSE.txt
+      shell: bash
 
     - name: Zip toolchain
-      shell: msys2 {0}
       run: |
         zip -9 -r pcc-dll-toolchain.zip dist
+      shell: bash
 
     - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pcc-dll-toolchain
+        path: pcc-dll-toolchain.zip
+
       uses: actions/upload-artifact@v4
       with:
         name: pcc-dll-toolchain
