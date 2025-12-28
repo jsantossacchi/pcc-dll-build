@@ -25,23 +25,18 @@ jobs:
           mingw-w64-i686-gcc
 
     - name: Build PCC
-      shell: msys2 {0}
-      run: |
-        set -e
+  shell: msys2 {0}
+  run: |
+    set -e
+    export PATH="/usr/bin:$PATH"
+    git clone --depth 1 https://github.com/pcc/pcc.git
+    cd pcc
+    ./configure --target=i386-win32 --disable-tests --disable-debug --disable-shared
+    make -j1
+    cd lib
+    make
+    cd ..
 
-        git clone --depth 1 https://github.com/pcc/pcc.git
-        cd pcc
-
-        ./configure \
-          --target=i386-win32 \
-          --disable-tests \
-          --disable-debug \
-          --disable-shared
-
-        make -j1
-        cd lib
-        make
-        cd ..
 
     - name: Create minimal distribution
       shell: msys2 {0}
