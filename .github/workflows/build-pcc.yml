@@ -1,4 +1,4 @@
-name: Build PCC DLL Toolchain
+name: Build PCC DLL Toolchain (Linux)
 
 on:
   workflow_dispatch:
@@ -7,28 +7,20 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup MSYS2
-      uses: msys2/setup-msys2@v2
-      with:
-        msystem: MINGW32
-        update: true
-        install: >-
-          git
-          make
-          zip
-          mingw-w64-i686-gcc
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git make zip gcc-multilib
 
     - name: Build PCC
       run: |
         set -e
-        # Use MSYS2 git
-        export PATH="/usr/bin:$PATH"
         git clone --depth 1 https://github.com/pcc/pcc.git
         cd pcc
         ./configure \
@@ -36,19 +28,20 @@ jobs:
           --disable-tests \
           --disable-debug \
           --disable-shared
-        make -j1
+        make -j2
         cd lib
         make
         cd ..
-      shell: bash
 
     - name: Create minimal distribution
       run: |
         set -e
-
         mkdir -p dist/bin dist/lib dist/include
 
-        cp pcc/cc/pcc.exe pcc/as/as.exe pcc/ld/ld.exe dist/bin/
+        cp pcc/cc/pcc dist/bin/
+        cp pcc/as/as dist/bin/
+        cp pcc/ld/ld dist/bin/
+
         cp pcc/lib/libc.a pcc/lib/libm.a pcc/lib/crt0.o dist/lib/
 
         cp pcc/include/math.h pcc/include/stddef.h pcc/include/stdint.h dist/include/
@@ -63,29 +56,23 @@ jobs:
         #endif
         EOF
 
-        cat > dist/build_dll.bat <<EOF
-        @echo off
-        set ROOT=%~dp0
-        set PATH=%ROOT%bin;%PATH%
+        cat > dist/build_dll.sh <<EOF
+        #!/bin/bash
+        ROOT=\$(dirname "\$0")
+        export PATH=\$ROOT/bin:\$PATH
         pcc -c ik.c -o ik.o
-        pcc -shared ik.o -L"%ROOT%lib" -lm -o ik.dll
-        echo DLL built: ik.dll
+        pcc -shared ik.o -L"\$ROOT/lib" -lm -o ik.dll
+        echo "DLL built: ik.dll"
         EOF
+        chmod +x dist/build_dll.sh
 
         echo "PCC is BSD licensed." > dist/LICENSE.txt
-      shell: bash
 
     - name: Zip toolchain
       run: |
         zip -9 -r pcc-dll-toolchain.zip dist
-      shell: bash
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: pcc-dll-toolchain
-        path: pcc-dll-toolchain.zip
-
       uses: actions/upload-artifact@v4
       with:
         name: pcc-dll-toolchain
