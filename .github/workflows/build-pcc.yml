@@ -1,0 +1,88 @@
+name: Build PCC DLL Toolchain
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        update: true
+        install: >-
+          git
+          make
+          zip
+          mingw-w64-i686-gcc
+
+    - name: Build PCC
+      shell: msys2 {0}
+      run: |
+        set -e
+
+        git clone https://github.com/pcc/pcc.git
+        cd pcc
+
+        ./configure \
+          --target=i386-win32 \
+          --disable-tests \
+          --disable-debug \
+          --disable-shared
+
+        make -j2
+        cd lib
+        make
+        cd ..
+
+    - name: Create minimal distribution
+      shell: msys2 {0}
+      run: |
+        set -e
+
+        mkdir -p dist/bin dist/lib dist/include
+
+        cp pcc/cc/pcc.exe pcc/as/as.exe pcc/ld/ld.exe dist/bin/
+        cp pcc/lib/libc.a pcc/lib/libm.a pcc/lib/crt0.o dist/lib/
+
+        cp pcc/include/math.h pcc/include/stddef.h pcc/include/stdint.h dist/include/
+
+        cat > dist/include/windows.h <<EOF
+        #ifndef _WINDOWS_H_
+        #define _WINDOWS_H_
+        #define WINAPI
+        #define __declspec(x)
+        typedef unsigned long DWORD;
+        typedef int BOOL;
+        #endif
+        EOF
+
+        cat > dist/build_dll.bat <<EOF
+        @echo off
+        set ROOT=%~dp0
+        set PATH=%ROOT%bin;%PATH%
+        pcc -c ik.c -o ik.o
+        pcc -shared ik.o -L"%ROOT%lib" -lm -o ik.dll
+        echo DLL built: ik.dll
+        EOF
+
+        echo "PCC is BSD licensed." > dist/LICENSE.txt
+
+    - name: Zip toolchain
+      shell: msys2 {0}
+      run: |
+        zip -9 -r pcc-dll-toolchain.zip dist
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pcc-dll-toolchain
+        path: pcc-dll-toolchain.zip
