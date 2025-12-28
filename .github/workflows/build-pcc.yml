@@ -25,12 +25,10 @@ jobs:
           mingw-w64-i686-gcc
 
     - name: Clone PCC
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -e
         export PATH="/usr/bin:$PATH"
-        git clone https://x-access-token:${GITHUB_TOKEN}@github.com/pcc/pcc.git --depth 1
+        git clone --depth 1 https://github.com/PortableCC/pcc.git
       shell: bash
 
     - name: Build PCC
