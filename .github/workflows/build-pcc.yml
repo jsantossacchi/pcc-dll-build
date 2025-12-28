@@ -29,7 +29,7 @@ jobs:
       run: |
         set -e
 
-        git clone https://github.com/pcc/pcc.git
+        git clone --depth 1 https://github.com/pcc/pcc.git
         cd pcc
 
         ./configure \
