@@ -36,15 +36,14 @@ jobs:
         set -e
         cd pcc/cc
 
-        # Define missing variables and set paths
-        echo "char *incdir = \"/path/to/include\";" >> cc.c
+        # Define missing variables with default paths (adjust if necessary)
         echo "char *altincdir = \"/path/to/alt/include\";" >> cc.c
         echo "char *libdir = \"/path/to/lib\";" >> cc.c
         echo "char *pccincdir = \"/usr/include\";" >> cc.c
         echo "char *pxxincdir = \"/usr/include\";" >> cc.c
 
-        # Optionally, you can adjust these paths if known for your build environment
-        echo "Patched code to define incdir, altincdir, libdir, pccincdir, and pxxincdir."
+        # This ensures that all undefined variables are initialized
+        echo "Patched code to define altincdir, libdir, pccincdir, and pxxincdir."
 
       shell: bash
 
