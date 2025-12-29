@@ -36,21 +36,20 @@ jobs:
         set -e
         cd pcc/cc
 
-        # Define missing variables with default paths (adjust if necessary)
+        # Define missing variables with default paths (adjust paths if necessary)
         echo "char *incdir = \"/path/to/include\";" >> cc.c
         echo "char *altincdir = \"/path/to/alt/include\";" >> cc.c
         echo "char *libdir = \"/path/to/lib\";" >> cc.c
         echo "char *pccincdir = \"/usr/include\";" >> cc.c
         echo "char *pxxincdir = \"/usr/include\";" >> cc.c
 
-        # Fixing the redefinition of permission macros
+        # Fix redefinition of permission macros
         sed -i 's/#define F_OK.*/\/\/#define F_OK    0x00/' cc.c
         sed -i 's/#define R_OK.*/\/\/#define R_OK    0x04/' cc.c
         sed -i 's/#define W_OK.*/\/\/#define W_OK    0x02/' cc.c
         sed -i 's/#define X_OK.*/\/\/#define X_OK    R_OK/' cc.c
 
-        # Confirm patch applied
-        echo "Patched code to define incdir, altincdir, libdir, pccincdir, and pxxincdir, and fixed permission redefinitions."
+        echo "Patched code to define incdir, altincdir, libdir, pccincdir, pxxincdir and fixed redefinition warnings."
 
       shell: bash
 
@@ -107,6 +106,7 @@ jobs:
       with:
         name: pcc-dll-toolchain
         path: pcc-dll-toolchain.zip
+
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
