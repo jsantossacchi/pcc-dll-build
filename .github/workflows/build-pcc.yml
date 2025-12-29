@@ -31,26 +31,20 @@ jobs:
         git clone --depth 1 https://github.com/PortableCC/pcc.git
       shell: bash
 
-    - name: Patch PCC source to fix undefined variables and redefinitions
+    - name: Patch PCC source to fix undefined variables
       run: |
         set -e
         cd pcc/cc
 
-        # Define missing variables (adjust paths if needed)
+        # Define missing variables and set paths
         echo "char *incdir = \"/path/to/include\";" >> cc.c
-        echo "char *altincdir = \"/path/to/include\";" >> cc.c
+        echo "char *altincdir = \"/path/to/alt/include\";" >> cc.c
         echo "char *libdir = \"/path/to/lib\";" >> cc.c
         echo "char *pccincdir = \"/usr/include\";" >> cc.c
         echo "char *pxxincdir = \"/usr/include\";" >> cc.c
 
-        # Comment out or fix conflicting permission macros
-        sed -i 's/#define F_OK.*/\/\/#define F_OK    0x00/' cc.c
-        sed -i 's/#define R_OK.*/\/\/#define R_OK    0x04/' cc.c
-        sed -i 's/#define W_OK.*/\/\/#define W_OK    0x02/' cc.c
-        sed -i 's/#define X_OK.*/\/\/#define X_OK    R_OK/' cc.c
-
-        # Confirmed patch applied
-        echo "Patched code to define missing variables and fix permission redefinitions."
+        # Optionally, you can adjust these paths if known for your build environment
+        echo "Patched code to define incdir, altincdir, libdir, pccincdir, and pxxincdir."
 
       shell: bash
 
