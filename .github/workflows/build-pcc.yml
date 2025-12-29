@@ -107,3 +107,9 @@ jobs:
       with:
         name: pcc-dll-toolchain
         path: pcc-dll-toolchain.zip
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pcc-dll-toolchain
+        path: pcc-dll-toolchain.zip
