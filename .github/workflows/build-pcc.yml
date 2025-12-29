@@ -34,16 +34,14 @@ jobs:
     - name: Patch PCC source to fix undefined variables
       run: |
         set -e
-        # Navigate to the directory where the source files are located
         cd pcc/cc
 
-        # Add default values to the undefined variables (you can adjust the paths as necessary)
+        # Manually define pccincdir and pxxincdir before they are used in the code
         echo "char *pccincdir = \"/path/to/include\";" >> cc.c
         echo "char *pxxincdir = \"/path/to/include\";" >> cc.c
 
-        # Optionally, you can set the path to the appropriate directories in the `cc.c` file
-        # Update paths as needed or leave them as placeholders for default values
-        echo "Patch applied to define pccincdir and pxxincdir."
+        # You can replace /path/to/include with the actual include paths if known
+        echo "Patched code to define pccincdir and pxxincdir."
 
       shell: bash
 
