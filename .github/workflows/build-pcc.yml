@@ -39,10 +39,8 @@ jobs:
         # Manually define pccincdir and pxxincdir before they are used in the code
         echo "char *pccincdir = \"/usr/include\";" >> cc.c
         echo "char *pxxincdir = \"/usr/include\";" >> cc.c
-        echo "Defined pccincdir and pxxincdir with /usr/include as default paths."
-
-        # Fixing a known issue where the paths were not initialized correctly in Windows
-        echo "Patch applied to define pccincdir and pxxincdir."
+        # This sets both variables with the same value for simplicity, replace with real paths if known
+        echo "Patched code to define pccincdir and pxxincdir."
 
       shell: bash
 
